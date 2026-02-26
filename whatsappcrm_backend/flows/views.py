@@ -268,6 +268,62 @@ class WhatsAppFlowViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+    @action(detail=False, methods=['post'])
+    def sync_all(self, request):
+        """Sync all WhatsApp flows with Meta's platform."""
+        from .whatsapp_flow_service import WhatsAppFlowService
+
+        draft_only = request.data.get('draft_only', False)
+        publish_after = request.data.get('publish', False)
+
+        queryset = self.get_queryset()
+        if draft_only:
+            queryset = queryset.filter(sync_status__in=['draft', 'error'])
+
+        flows = list(queryset)
+        if not flows:
+            return Response(
+                {"detail": "No WhatsApp flows found matching the criteria."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        results = []
+        for whatsapp_flow in flows:
+            result = {"id": whatsapp_flow.id, "name": whatsapp_flow.name}
+            try:
+                service = WhatsAppFlowService(whatsapp_flow.meta_app_config)
+                sync_ok = service.sync_flow(whatsapp_flow)
+                whatsapp_flow.refresh_from_db()
+
+                if sync_ok:
+                    result["sync"] = "success"
+
+                    if publish_after and whatsapp_flow.flow_id:
+                        pub_ok = service.publish_flow(whatsapp_flow)
+                        whatsapp_flow.refresh_from_db()
+                        result["publish"] = "success" if pub_ok else "failed"
+                        if not pub_ok:
+                            result["error"] = whatsapp_flow.sync_error
+                else:
+                    result["sync"] = "failed"
+                    result["error"] = whatsapp_flow.sync_error
+            except Exception as e:
+                logger.error(f"Error syncing WhatsApp flow {whatsapp_flow.id}: {e}", exc_info=True)
+                result["sync"] = "failed"
+                result["error"] = str(e)
+
+            results.append(result)
+
+        succeeded = sum(1 for r in results if r.get("sync") == "success")
+        failed = sum(1 for r in results if r.get("sync") == "failed")
+
+        return Response({
+            "total": len(results),
+            "succeeded": succeeded,
+            "failed": failed,
+            "results": results,
+        }, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['post'])
     def publish(self, request, pk=None):
         """Publish this flow on Meta's platform."""
