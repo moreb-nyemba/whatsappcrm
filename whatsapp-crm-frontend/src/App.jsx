@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import ApiSettings from './pages/ApiSettings';
 import FlowsPage from './pages/FlowsPage';
 import FlowEditorPage from './pages/FlowEditorPage';
+import WhatsAppFlowsPage from './pages/WhatsAppFlowsPage';
 import MediaLibraryPage from './pages/MediaLibraryPage';
 import ContactsPage from './pages/ContactsPage';
 import SavedData from './pages/SavedData';
@@ -64,6 +65,7 @@ export default function App() {
             <Route path="flows" element={<FlowsPage />} />
             <Route path="flows/new" element={<FlowEditorPage />} />
             <Route path="flows/edit/:flowId" element={<FlowEditorPage />} />
+            <Route path="whatsapp-flows" element={<WhatsAppFlowsPage />} />
             <Route path="media-library" element={<MediaLibraryPage />} />
             <Route path="contacts" element={<ContactsPage />} />
             <Route path="saved-data" element={<SavedData />} />

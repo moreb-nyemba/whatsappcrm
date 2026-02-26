@@ -36,6 +36,7 @@ const links = [
   { to: '/conversation', label: 'Conversations', icon: <FiMessageSquare className="h-5 w-5" /> },
   { to: '/contacts', label: 'Contacts', icon: <FiUsers className="h-5 w-5" /> },
   { to: '/flows', label: 'Flows', icon: <FiShare2 className="h-5 w-5" /> },
+  { to: '/whatsapp-flows', label: 'WhatsApp Flows', icon: <FiShare2 className="h-5 w-5" /> },
   { to: '/media-library', label: 'Media Library', icon: <FiImage className="h-5 w-5" /> },
   { to: '/api-settings', label: 'API Settings', icon: <FiSettings className="h-5 w-5" /> },
   // { to: '/saved-data', label: 'Saved Data', icon: <FiDatabase className="h-5 w-5" /> }, // Uncomment if you use this route
